@@ -82,13 +82,13 @@ const server = http.createServer((req, res) => {
     assert.match(await page.locator('[data-date="2026-09-25"]').getAttribute('aria-label'), /農曆八月十五，中秋節/);
     const blueHoliday = await page.locator('[data-date="2026-09-26"]').evaluate(day => ({
       background: getComputedStyle(day).backgroundColor,
-      markerBackground: getComputedStyle(day.querySelector('.holiday-marker')).backgroundColor,
+      markerBorder: getComputedStyle(day.querySelector('.holiday-marker')).borderColor,
       markerColor: getComputedStyle(day.querySelector('.holiday-marker')).color
     }));
     const outsideHoliday = page.locator('[data-date="2026-10-10"]');
     const outsideHolidayBackground = await outsideHoliday.evaluate(day => getComputedStyle(day).backgroundColor);
     await outsideHoliday.hover();
-    assert.notEqual(await outsideHoliday.evaluate(day => getComputedStyle(day).backgroundColor), outsideHolidayBackground, 'Outside-month holidays should respond to hover');
+    await page.waitForFunction(before => getComputedStyle(document.querySelector('[data-date="2026-10-10"]')).backgroundColor !== before, outsideHolidayBackground);
     assert.equal(await page.locator('#current-day-info .local-badge').count(), 1);
     assert.equal(await page.locator('#calendar-title').count(), 0);
     // Date rollover, Gregorian leap years, and neighboring month cells.
@@ -134,10 +134,11 @@ const server = http.createServer((req, res) => {
       const cell = day.getBoundingClientRect();
       const preview = day.querySelector('.note-preview').getBoundingClientRect();
       const lunar = day.querySelector('.lunar-label').getBoundingClientRect();
-      return { rightGap: cell.right - preview.right, previewTop: preview.top, lunarTop: lunar.top };
+      return { rightGap: cell.right - preview.right, previewTop: preview.top, previewLeft: preview.left, lunarTop: lunar.top, lunarRight: lunar.right, lunarBottom: lunar.bottom };
     });
     assert.ok(notePlacement.rightGap >= 0 && notePlacement.rightGap <= 12, 'Note preview should sit on the right');
     assert.ok(notePlacement.previewTop > notePlacement.lunarTop, 'Note preview should sit below the lunar date');
+    assert.ok(notePlacement.previewLeft >= notePlacement.lunarRight + 4 || notePlacement.previewTop >= notePlacement.lunarBottom + 3, 'Long note preview should not touch the lunar date');
     const noteStyles = await page.evaluate(todayKey => {
       const inMonth = [...document.querySelectorAll('.day-button:not(.is-today):not(.outside-month):not(.has-festival)')][0];
       const outsideMonth = [...document.querySelectorAll('.day-button.outside-month:not(.has-festival)')][0];
@@ -182,11 +183,11 @@ const server = http.createServer((req, res) => {
     await page.evaluate(() => { Object.assign(CalendarApp.state, { year: 2026, month: 8 }); CalendarApp.renderMonth(); });
     const greenHoliday = await page.locator('[data-date="2026-09-26"]').evaluate(day => ({
       background: getComputedStyle(day).backgroundColor,
-      markerBackground: getComputedStyle(day.querySelector('.holiday-marker')).backgroundColor,
+      markerBorder: getComputedStyle(day.querySelector('.holiday-marker')).borderColor,
       markerColor: getComputedStyle(day.querySelector('.holiday-marker')).color
     }));
     assert.notEqual(greenHoliday.background, blueHoliday.background);
-    assert.notEqual(greenHoliday.markerBackground, blueHoliday.markerBackground);
+    assert.notEqual(greenHoliday.markerBorder, blueHoliday.markerBorder);
     assert.notEqual(greenHoliday.markerColor, blueHoliday.markerColor);
     await page.locator('#open-theme').click();
     await page.locator('.color-option').filter({ hasText: '靜謐藍' }).click();

@@ -177,16 +177,24 @@ td:last-child {
 }
 
 .outside-month {
-  background: #f4f6f8;
-  color: #a8b2ba;
+  background: #eff1f3;
+  color: #87939c;
+}
+
+.outside-month:hover {
+  background: #e5e9ec;
 }
 
 .outside-month .date-number {
-  color: #9eabb5;
+  color: #87939c;
 }
 
 .outside-month .lunar-label {
-  color: #aeb8c0;
+  color: #9aa5ad;
+}
+
+.outside-month .festival-label {
+  color: #87939c;
 }
 
 .is-today {
@@ -200,34 +208,34 @@ td:last-child {
 
 .is-holiday {
   background: var(--tint);
-  background: color-mix(in srgb, var(--primary) 6%, var(--paper));
+  background: color-mix(in srgb, var(--accent) 26%, var(--tint));
 }
 
 .is-holiday:hover {
   background: var(--tint);
-  background: color-mix(in srgb, var(--primary) 11%, var(--paper));
+  background: color-mix(in srgb, var(--accent) 40%, var(--tint));
 }
 
 .outside-month.is-holiday {
-  background: #f1f3f5;
-  background: color-mix(in srgb, var(--primary) 4%, #f1f3f5);
-}
-
-.outside-month.is-holiday .date-number {
-  color: #9eabb5;
+  background: #eff1f3;
 }
 
 .outside-month.is-holiday:hover {
-  background: #e8ecef;
-  background: color-mix(in srgb, var(--primary) 11%, #f1f3f5);
+  background: #e5e9ec;
 }
 
 .is-holiday.is-today {
   background: var(--tint);
+  background: color-mix(in srgb, var(--accent) 26%, var(--tint));
 }
 
 .is-holiday .date-number {
   color: var(--primary);
+}
+
+.outside-month.is-holiday .date-number,
+.outside-month.is-weekend-workday .date-number {
+  color: #87939c;
 }
 
 .is-holiday.is-today .date-number {
@@ -253,13 +261,24 @@ td:last-child {
 
 .holiday-marker {
   color: var(--primary);
-  background: var(--tint);
-  background: color-mix(in srgb, var(--primary) 15%, var(--paper));
+  background: var(--paper);
+  border: 1px solid var(--accent);
+  border-color: color-mix(in srgb, var(--primary) 36%, var(--paper));
 }
 
 .workday-marker {
   color: var(--primary);
   background: var(--tint);
+}
+
+.outside-month .holiday-marker,
+.outside-month .workday-marker {
+  color: #71808b;
+  background: #dfe5e9;
+}
+
+.outside-month .holiday-marker {
+  border-color: #cbd4da;
 }
 
 .note-preview {
@@ -276,7 +295,7 @@ td:last-child {
   padding: 3px 6px;
   font-size: 11px;
   font-weight: 600;
-  max-width: 72%;
+  max-width: min(72%, calc(100% - 64px));
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -284,7 +303,7 @@ td:last-child {
 }
 
 .outside-month .note-preview {
-  background: #e9eef1;
+  background: #fafbfc;
   color: #71808c;
   border-color: #c4cdd3;
   border-right-color: #9aaab5;
