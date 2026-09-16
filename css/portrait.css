@@ -1,112 +1,284 @@
-@media (orientation: portrait) {
-
-  body {
-      flex-direction: column;
+@media(min-width:1440px) {
+  .app-shell {
+    grid-template-columns: 360px minmax(0,1fr);
   }
-
   #current-day-info {
-      width: 100%;
-      min-height: initial;
-      height: 12vh;
-      padding: 1vw 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
+    padding: 44px 40px;
   }
-
-  #current-day-info h2 {
-      font-size: 6vw;
+  .today-summary {
+    padding-top: 44px;
   }
-
-  #current-day-info h1 {
-      font-size: 7vw;
-  }
-
-  #current-day-info #app-name-landscape {
-      display: none;
-  }
-
-  #current-day-info #theme-landscape {
-      display: none;
-  }
-
-  #current-day-info .current-day-heading {
-      display: inline;
-      padding: 0;
-      margin: 0 4px;
-  }        
-  
-  #calendar {
-    width: 100%;
-    display: block;
-    margin-top: 3.6vh;
-  }
-
-  #calendar #app-name-portrait {
-      display: block;
-      margin: 0;
-      font-size: 3.5vh;
-  }
-
-  #calendar h4 {
-      padding: 1.2vw 0 0.2vw;
-      font-size: 2.8vw;
-  }
-
-  #calendar h3 {
-      font-size: 3.8vw;
-      padding: 1.4vw 2vw 0.8vw;
-  }
-
-  #calendar .icon {
-      font-size: 2.9vw;
-  }
-
-  #calendar .weekday {
-      font-size: 2.5vw;
-  }
-
-  #calendar tbody td {
-      height: 9.8vw;
-      width: 9.8vw;
-      font-size: 1.6vw;
-      padding: 0.8vw;
-  }
-
-  #calendar img {
-      width: 7.4vw;
-      top: 0.7vw;
-  }
-
-  #calendar #theme-portrait {
-      display: block;
-      padding: 3vw 26.5vw;
-      font-size: 4vw;
-      margin-top: 2vh;
-      border: none;
-
-  }                
-
-  .popup {
-    width: 85vw;
-  }
-  #fav-color #color-options {
-    width: 92%;
-    margin: 0 5px;
-  }
-  #fav-color #color-options .color-option {
-    width: 15vw;
-  }
-  #make-note #edit-post-it {
-    width: 65vw;
-    height: 25vh;
-    font-size: 4vh;
-  }         
 }
 
-@media (max-width: 280px) {  
-  #make-note h4 {          
-    font-size: calc(14px + 1.6vw);
+@media(max-width:1100px) {
+  .app-shell {
+    grid-template-columns: 260px minmax(0,1fr);
+  }
+  #current-day-info {
+    padding: 32px 24px;
+  }
+  #calendar {
+    padding: 32px 24px 24px;
+  }
+  .brand {
+    font-size: 19px;
+  }
+  .today-summary h1 {
+    font-size: 25px;
+  }
+  .calendar-toolbar {
+    padding: 22px;
+  }
+  .day-button {
+    padding: 7px;
+  }
+  .note-preview {
+    max-width: 55%;
+  }
+}
+
+@media(max-width:800px) {
+  .app-shell {
+    display: block;
+  }
+  #current-day-info {
+    padding: 22px 24px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+  }
+  .brand {
+    font-size: 20px;
+  }
+  .local-badge {
+    grid-column: 1/-1;
+    grid-row: 2;
+    margin-top: 0;
+  }
+  .today-summary {
+    grid-column: 1/-1;
+    grid-row: 3;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px 16px;
+    align-items: center;
+  }
+  .today-summary h1,.intro,.today-label,.sidebar-footer>p {
+    display: none;
+  }
+  .today-full {
+    grid-column: 1;
+    grid-row: 1;
+    margin-top: 0;
+  }
+  .today-calendar-date {
+    font-size: 19px;
+  }
+  .today-weekday {
+    font-size: 19px;
+  }
+  .light-button {
+    grid-column: 2;
+    grid-row: 1;
+    width: auto;
+    margin: 0;
+  }
+  .sidebar-footer {
+    grid-column: 2;
+    grid-row: 1;
+    margin: 0;
+  }
+  .theme-button {
+    border: 0;
+    padding: 0;
+    min-height: 44px;
+    font-size: 12px;
+    gap: 8px;
+  }
+  .theme-button>span:last-child {
+    display: none;
+  }
+  #calendar {
+    padding: 20px 24px 24px;
+  }
+  .day-button {
+    height: 88px;
+    padding: 9px;
+  }
+  .note-preview {
+    max-width: 72%;
+  }
+  .page-footer {
+    margin-top: 24px;
+  }
+}
+
+@media(max-width:480px) {
+  #current-day-info {
+    padding: 20px;
+    gap: 12px;
+  }
+  .brand {
+    font-size: 18px;
+  }
+  .theme-button {
+    font-size: 11px;
+  }
+  .today-full {
+    padding-left: 9px;
+    gap: 2px 7px;
+  }
+  .today-calendar-date {
+    font-size: 16px;
+  }
+  .today-weekday {
+    font-size: 16px;
+  }
+  .light-button {
+    font-size: 13px;
+    padding: 10px 14px;
+  }
+  #calendar {
+    padding: 16px 12px 20px;
+  }
+  .calendar-toolbar {
+    padding: 18px 14px;
+  }
+  .month-line strong {
+    font-size: 23px;
+  }
+  .month-line small {
+    display: none;
+  }
+  .month-picker-trigger>#cal-year {
+    font-size: 12px;
+  }
+  .month-picker-trigger {
+    padding: 6px 8px;
+  }
+  .month-navigation {
+    gap: 0;
+  }
+  .today-button {
+    min-width: 54px;
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+  .calendar-card {
+    border-radius: 12px;
+  }
+  th {
+    height: 36px;
+    font-size: 11px;
+  }
+  .day-button {
+    height: 64px;
+    padding: 6px 3px;
+    align-items: center;
+    gap: 3px;
+  }
+  .date-number {
+    font-size: 12px;
+    width: 27px;
+    height: 27px;
+  }
+  .note-preview {
+    display: none;
+  }
+  .lunar-label,.festival-label {
+    font-size: 10px;
+  }
+  .has-festival .lunar-label {
+    display: none;
+  }
+  .note-dot {
+    display: block;
+    position: absolute;
+    top: 8px;
+    right: 6px;
+  }
+  .is-holiday.has-note:not(.has-festival) .note-dot,
+  .is-weekend-workday.has-note:not(.has-festival) .note-dot {
+    display: block;
+  }
+  .holiday-marker,.workday-marker {
+    top: auto;
+    bottom: 4px;
+    right: 3px;
+    width: 14px;
+    height: 14px;
+    font-size: 9px;
+  }
+  .has-festival.is-holiday .holiday-marker {
+    display: none;
+  }
+  .is-holiday.has-note .note-dot,.is-weekend-workday.has-note .note-dot {
+    top: 8px;
+    bottom: auto;
+    right: 5px;
+  }
+  .has-festival .note-dot {
+    top: 8px;
+    right: 6px;
+  }
+  .calendar-legend {
+    padding: 14px 12px;
+    gap: 12px;
+    font-size: 10px;
+  }
+  .calendar-hint {
+    font-size: 9px;
+  }
+  .notes-section {
+    margin-top: 24px;
+    padding: 0 4px;
+  }
+  .notes-heading>span {
+    font-size: 10px;
+  }
+  .empty-notes {
+    padding: 20px 14px;
+    gap: 12px;
+  }
+  .empty-notes p {
+    font-size: 11px;
+  }
+  .page-footer {
+    font-size: 9px;
+    padding: 0 4px;
+    flex-wrap: wrap;
+  }
+  .popup {
+    padding: 20px;
+  }
+  .dialog-heading h2 {
+    font-size: 21px;
+  }
+  .dialog-actions .button {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+  #color-options {
+    grid-template-columns: repeat(3,minmax(0,1fr));
+    gap: 8px;
+  }
+  .month-options {
+    grid-template-columns: repeat(3,minmax(0,1fr));
+  }
+  .editor-hint {
+    font-size: 10px;
+  }
+}
+
+@media(max-height:500px) and (orientation:landscape) {
+  dialog {
+    max-height: calc(100dvh - 16px);
+  }
+  textarea {
+    min-height: 90px;
+  }
+  .popup {
+    padding: 20px;
   }
 }

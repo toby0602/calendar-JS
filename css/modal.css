@@ -1,120 +1,225 @@
 dialog {
-  height: 100%;
-  width: 100%;
-  border: none;
+  width: min(520px,calc(100% - 32px));
+  max-height: calc(100dvh - 32px);
   padding: 0;
-  background-color: rgba(29, 29, 29, 0.85);
-  position: fixed;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  color: var(--ink);
+  background: var(--paper);
+  box-shadow: 0 24px 100px #11283b30;
+  overflow: auto;
 }
+
+dialog::backdrop {
+  background: #132a4066;
+  backdrop-filter: blur(4px);
+}
+
+body:has(dialog[open]) {
+  overflow: hidden;
+}
+
 .popup {
-  position: static;
+  padding: 28px;
+}
+
+.dialog-heading {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  width: 50vw;
-  margin: 22vh auto 0;
-  background-color: #FEFDFD;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dialog-heading .eyebrow {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.dialog-heading h2 {
+  font-size: 23px;
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+#note-date,.dialog-description {
+  font-size: 14px;
+  color: var(--muted);
+  margin: 16px 0 24px;
+}
+
+label[for="edit-post-it"] {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+textarea {
+  display: block;
+  width: 100%;
+  min-height: 180px;
+  max-height: 40dvh;
+  resize: vertical;
+  border: 1px solid #ccd6dd;
   border-radius: 10px;
-}    
-#fav-color h4 {
-  margin: 32px 0 18px;
-  font-size: calc(12px + 1.6vw);
-  font-weight: 300;
-  padding: 0 2vw 2px;
-  border-bottom: 1px solid #222;
-}
-#fav-color #color-options {
-  width: 84%;
-  margin: 0 10px;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-#fav-color #color-options h5 {
-  /* display: inline; */
-  margin: 8px 0 16px;
-  font-size: calc(6px + 0.6vw);
-  font-weight: 500;
-}
-#fav-color #color-options .color-option {
-  margin: 0.5vw;
-  width: 6vw;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-#fav-color #color-options .color-preview {
-  width: calc(16px + 1.7vw);
-  height: calc(16px + 1.7vw);
-  padding: 0;
-  /* border-radius: 100%; */
-  clip-path: polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%);
-
-  display: flex;    
-  /* 依據交叉軸(縱)置中對齊 */
-  align-items: center;   
-  /* 依據主軸(橫)置中對齊 */
-  justify-content: center;
-}    
-#fav-color #update-theme-button {
-  margin: 24px 0 20px;
-  padding: 10px 26px;
-  font-size: calc(8px + 0.6vw);
-  font-weight: 400;
-  border: 3px solid #222;
-}
-#fav-color #update-theme-button:hover {
-  color: white;
-  background-color: #222;
-}    
-#fav-color #color-options .checkmark {
-  color: white;
-  font-size: 1.2vw;
-}
-
-#make-note h4 {
-  margin: 32px 0 18px;
-  font-size: calc(16px + 1.6vw);
-  font-weight: 300;
-}
-
-#make-note #edit-post-it {
-  height: 340px;
-  width: 42vw;
-  font-size: 2.6vw;
   padding: 14px;
-  border: 1px solid #D8D8D8;
+  font-size: 16px;
+  line-height: 1.8;
+  color: var(--ink);
+  background: #fbfcfd;
+}
+
+textarea::placeholder {
+  color: #8b98a2;
+}
+
+.editor-hint {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 11px;
+  margin-top: 9px;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+
+.danger-button {
+  background: #fff0ef;
+  color: #a43131;
+  margin-right: auto;
+}
+
+.danger-button:hover {
+  background: #fbe0de;
+}
+
+.error-message {
+  color: #a43131;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.error-message:not(:empty) {
+  margin-top: 12px;
+}
+
+#color-options {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: grid;
+  grid-template-columns: repeat(4,minmax(0,1fr));
+  gap: 12px;
+}
+
+.color-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 4px;
+  font-size: 11px;
+  cursor: pointer;
   border-radius: 10px;
-  outline: none;
-  resize: none;
+  border: 1px solid var(--line);
 }
 
-#make-note .post-it-button {
-  display: inline;
-  margin: 24px 0 20px;
-  padding: 10px 26px;
-  font-size: calc(12px + 0.6vw);
-  font-weight: 400;
+.color-option:has(input:checked) {
+  border-color: var(--primary);
+  background: var(--tint);
 }
 
-#make-note #add-post-it {
-  border: 3px solid #222;
+.color-option:has(input:focus-visible) {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
 }
 
-#make-note #add-post-it:hover {
-  color: white;
-  background-color: #222;
+.color-preview {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--swatch);
+  color: #fff;
 }
 
-#make-note #delete-button {
-  border: 3px solid #D71C1F;
-  background-color: #D71C1F;
-  color: white;
+.color-option input:checked+.color-preview::after {
+  content: "✓";
+  font-size: 18px;
 }
 
-#make-note #delete-button:hover {
-  background-color: white;
-  color: #D71C1F;
-}   
+.year-label,.month-options legend {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.year-label {
+  margin: 24px 0 9px;
+}
+
+#picker-year {
+  width: 100%;
+  min-height: 44px;
+  padding: 9px 12px;
+  border: 1px solid #ccd6dd;
+  border-radius: 9px;
+  background: #fbfcfd;
+  color: var(--ink);
+  font-size: 16px;
+}
+
+.month-options {
+  display: grid;
+  grid-template-columns: repeat(4,minmax(0,1fr));
+  gap: 9px;
+  margin: 22px 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.month-options legend {
+  margin-bottom: 10px;
+  padding: 0;
+}
+
+.month-options label {
+  position: relative;
+  cursor: pointer;
+}
+
+.month-options input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.month-options label span {
+  display: grid;
+  place-items: center;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  font-size: 14px;
+}
+
+.month-options input:checked+span {
+  border-color: var(--primary);
+  background: var(--tint);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.month-options input:focus-visible+span {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}

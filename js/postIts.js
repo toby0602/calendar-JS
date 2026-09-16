@@ -1,82 +1,125 @@
-function openMakeNote(){
-  var modal = document.getElementById("modal");    
-  var template = document.getElementById("make-note");
-  template.removeAttribute("hidden");      
-  modal.open = true;
-  if (modal.classList.contains('fade-out')) modal.classList.toggle('fade-out');
-  modal.classList.toggle('fade-in');      
+"use strict";
 
-  if(!newCurrentPostIt){//如果不是新記事的話
-    document.getElementById("edit-post-it").value = postIts[currentPostItIndex].note; //將原有記事資料物件裏的記事顯示在文字方塊"edit-post-it"中
-  }      
-  document.getElementById("edit-post-it").focus();
-}
-function closeMakeNote(){
-  //關閉對話方塊
-  var modal = document.getElementById("modal");      
-  if(modal.classList.contains('fade-in')) modal.classList.toggle('fade-in');
-  modal.classList.toggle('fade-out');
-  var template = document.getElementById("make-note");
-  template.setAttribute("hidden", "hidden");
-  modal.open = false;
-}
-function dayClicked(elm) {
-  console.log(elm.dataset.uid);
-  currentPostItID = elm.dataset.uid; //目前的記事ID為所點擊的日期表格上的uid
-  currentDayHasNote(currentPostItID);//判斷目前點擊的日期是否有記事資料
-  openMakeNote();
-}
-
-function currentDayHasNote(uid){ //測試特定UID是否已經有記事
-  for(var i = 0; i < postIts.length; i++){
-      if(postIts[i].id == uid){ //Bingo
-          newCurrentPostIt = false; //目前的日期有記事資料
-          currentPostItIndex = i; //指向找到的記事資料物件
-          return;
+(() => {
+  const app = CalendarApp;
+  const { $, state } = app;
+  const storageKey = "my-calendar.notes.v1";
+  let storageInvalid = false;
+  function loadNotes() {
+    try {
+      const raw = localStorage.getItem(storageKey);
+      const data = raw ? JSON.parse(raw) : {};
+      if (!data || typeof data !== "object" || Array.isArray(data)) throw new Error("Invalid notes");
+      const notes = {};
+      for (const [key, value] of Object.entries(data)) {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(key) || app.dateKey(app.parseDate(key)) !== key || typeof value !== "string" || value.length > 2000) throw new Error("Invalid note");
+        if (value.trim()) notes[key] = value;
       }
+      state.notes = notes;
+      storageInvalid = false;
+    } catch {
+      storageInvalid = true;
+      app.notify("無法讀取本機記事。請檢查瀏覽器儲存設定；現有資料不會被覆寫。");
+    }
   }
-  newCurrentPostIt = true;  //目前的日期沒有記事資料
-}
-
-function getRandom(min, max) { //min <= 亂數值 < max
-  return Math.floor(Math.random() * (max - min) ) + min;
-}
-
-function submitPostIt(){ //按了PostIt按鍵後，所要執行的方法
-  const value = document.getElementById("edit-post-it").value;
-  document.getElementById("edit-post-it").value = "";
-  let num = getRandom(1, 6); //取得1~5的亂數，用來標示便利貼顏色的檔案代號
-  let postIt = {
-      id: currentPostItID,
-      note_num: num,
-      note: value
+  function saveNotes(next) {
+    try {
+      if (storageInvalid) throw new Error("Storage unavailable");
+      localStorage.setItem(storageKey, JSON.stringify(next));
+      state.notes = next;
+      return true;
+    } catch {
+      $("note-error").textContent = "儲存失敗，請檢查瀏覽器儲存空間或權限。你的文字仍保留在這裡。";
+      return false;
+    }
   }
-  if(newCurrentPostIt){ //如果是新記事的話
-      postIts.push(postIt); //將新記事postIT物件推入postIts陣列
-  } else {
-      postIts[currentPostItIndex].note = postIt.note; //更新現有記事物件的記事資料
+  function openNote(key) {
+    state.selectedDate = key;
+    $("note-title").textContent = state.notes[key] ? "編輯每日記事" : "新增每日記事";
+    const date = app.parseDate(key);
+    const details = CalendarDates.getDayDetails(date);
+    const holiday = OfficialCalendar.getDayInfo(key);
+    const dayOff = holiday?.isHoliday ? `休假日${holiday.note ? `（${holiday.note}）` : ""}` : holiday?.isWeekendWorkday ? `上班日（${holiday.note}）` : "";
+    $("note-date").textContent = [app.dateLabel(date), details.lunarFull, ...details.festivals.map((item) => item.name), dayOff].filter(Boolean).join(" · ");
+    $("edit-post-it").value = state.notes[key] || "";
+    $("note-length").textContent = `${$("edit-post-it").value.length} / 2000`;
+    $("note-error").textContent = "";
+    $("delete-button").hidden = !state.notes[key];
+    $("note-dialog").showModal();
+    $("edit-post-it").focus();
   }
-  // console.log(postIts)
-  fillInMonth(thisYear, thisMonth, thisDate);    
-  closeMakeNote();
-}
-
-function deleteNote(){
-  document.getElementById("edit-post-it").value = "";
-  let indexToDel; //指向將刪除的記事資料物件
-  if(!newCurrentPostIt){
-      indexToDel =currentPostItIndex;
+  function finish(message) {
+    const key = state.selectedDate;
+    $("note-dialog").close();
+    const focusedDate = document.activeElement?.dataset.date;
+    app.renderMonth();
+    if (focusedDate) document.querySelector(`[data-date="${key}"]`)?.focus();
+    else if (document.activeElement === document.body) $("go-today").focus();
+    app.notify(message);
   }
-  if(indexToDel != undefined){
-      postIts.splice(indexToDel, 1);
+  function renderNotes() {
+    const prefix = `${state.year}-${String(state.month + 1).padStart(2, "0")}-`;
+    const notes = Object.entries(state.notes).filter(([key]) => key.startsWith(prefix)).sort(([a], [b]) => a.localeCompare(b));
+    $("note-count").textContent = notes.length;
+    const container = $("month-notes");
+    container.replaceChildren();
+    if (!notes.length) {
+      container.className = "empty-notes";
+      const icon = document.createElement("span");
+      icon.className = "empty-icon";
+      icon.textContent = "▤";
+      icon.setAttribute("aria-hidden", "true");
+      const text = document.createElement("div");
+      const heading = document.createElement("h4");
+      heading.textContent = "留一筆，給未來的自己。";
+      const hint = document.createElement("p");
+      hint.textContent = "這個月還沒有記事，點選日期開始記錄吧。";
+      text.append(heading, hint);
+      container.append(icon, text);
+      return;
+    }
+    container.className = "note-list";
+    for (const [key, note] of notes) {
+      const button = document.createElement("button");
+      button.className = "note-item";
+      button.type = "button";
+      const date = document.createElement("time");
+      date.dateTime = key;
+      date.textContent = `${Number(key.slice(5, 7))} 月 ${Number(key.slice(8))} 日`;
+      const text = document.createElement("p");
+      text.textContent = note;
+      const arrow = document.createElement("span");
+      arrow.textContent = "↗";
+      arrow.setAttribute("aria-hidden", "true");
+      button.append(date, text, arrow);
+      button.addEventListener("click", () => openNote(key));
+      container.append(button);
+    }
   }
-  fillInMonth(thisYear, thisMonth, thisDate);    
-  closeMakeNote();
-}
-    
-// 記事資料的程式片段
-var postIts = []; //記事陣列，用來放置月曆中的記事物件資料
-//current 目前點擊的日期
-var currentPostItID = 0; //目前的記事ID
-var newCurrentPostIt = false; //目前的記事是否為新？也就是：目前點選的日期尚未有任何的記事資料
-var currentPostItIndex = 0; //目前的記事在postIts陣列中的位置索引
+  Object.assign(app, { loadNotes, openNote, renderNotes });
+  $("note-form").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const note = $("edit-post-it").value.trim();
+    if (!note) {
+      $("note-error").textContent = "請先寫下一點內容，再儲存記事。";
+      $("edit-post-it").focus();
+      return;
+    }
+    if (saveNotes({ ...state.notes, [state.selectedDate]: note })) finish("記事已儲存在此瀏覽器。");
+  });
+  $("delete-button").addEventListener("click", () => {
+    const next = { ...state.notes };
+    delete next[state.selectedDate];
+    if (saveNotes(next)) finish("記事已刪除。");
+  });
+  $("edit-post-it").addEventListener("input", () => {
+    $("note-length").textContent = `${$("edit-post-it").value.length} / 2000`;
+    $("note-error").textContent = "";
+  });
+  $("edit-post-it").addEventListener("keydown", (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key === "Enter" && !event.isComposing) {
+      event.preventDefault();
+      $("note-form").requestSubmit();
+    }
+  });
+})();

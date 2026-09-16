@@ -1,129 +1,63 @@
-var currentColor = {
-  name: "blue",
-  color: "#153b5f",
-  off_color: "#7c7EFB"
-};
+"use strict";
 
-var color_data = [
-  {
-    name: 'blue',
-    color_code: '#153b5f',
-    off_color_code: '#7C7EFB'
-  }, {
-    name: 'red',
-    color_code: '#D01212',
-    off_color_code: '#EEA19B'
-  }, {
-    name: 'purple',
-    color_code: '#721D89',
-    off_color_code: '#EBADFB'
-  }, {
-    name: 'green',
-    color_code: '#158348',
-    off_color_code: '#57C664'
-  }, {
-    name: 'orange',
-    color_code: '#EE742D',
-    off_color_code: '#F7A77A'
-  }, {
-    name: 'deep-orange',
-    color_code: '#F13C26',
-    off_color_code: '#F77D59'
-  }, {
-    name: 'baby-blue',
-    color_code: '#31B2FC',
-    off_color_code: '#3D8DD9'
-  }, {
-    name: 'cerise',
-    color_code: '#EA3D69',
-    off_color_code: '#FCBECC'
-  }, {
-    name: 'lime',
-    color_code: '#2ACC32',
-    off_color_code: '#4FFA4F'
-  }, {
-    name: 'teal',
-    color_code: '#2FCCB9',
-    off_color_code: '#7FE7E3'
-  }, {
-    name: 'pink',
-    color_code: '#F50D7A',
-    off_color_code: '#FFB9EA'
-  }, {
-    name: 'black',
-    color_code: '#212524',
-    off_color_code: '#687E7B'
+(() => {
+  const { $, notify } = CalendarApp;
+  // Deeper tones keep white text readable across all twelve original choices.
+  const themes = [
+    ["blue", "靜謐藍", "#153b5f", "#8daaba", "#edf3f7"],
+    ["red", "磚紅", "#963939", "#daaaa4", "#faf0ee"],
+    ["purple", "暮光紫", "#694379", "#b5a0c3", "#f4eff7"],
+    ["green", "森林綠", "#286047", "#98bba8", "#eef5f0"],
+    ["orange", "暖橘", "#985023", "#d8b18d", "#faf2e9"],
+    ["deep-orange", "落日橘", "#a4412b", "#dda78a", "#faf0e9"],
+    ["baby-blue", "晴空藍", "#286285", "#9ac4dd", "#eef6fa"],
+    ["cerise", "莓果紅", "#9b395c", "#d5a0b4", "#faf0f4"],
+    ["lime", "嫩葉綠", "#526827", "#b7c78b", "#f4f7ed"],
+    ["teal", "湖水綠", "#24685f", "#91beb7", "#edf6f4"],
+    ["pink", "玫瑰粉", "#984572", "#d5a4c2", "#faf0f6"],
+    ["black", "石墨黑", "#303c3c", "#a0afad", "#f0f3f2"]
+  ];
+  const storageKey = "my-calendar.theme.v1";
+  let current = "blue";
+  function applyTheme(name) {
+    const theme = themes.find(([id]) => id === name) || themes[0];
+    current = theme[0];
+    ["--primary", "--accent", "--tint"].forEach((property, index) => document.documentElement.style.setProperty(property, theme[index + 2]));
+    document.querySelector('meta[name="theme-color"]').content = theme[2];
   }
-];
-
-//用程式的方式去打開色彩對話方塊，讓使用者選取色彩，確認後，按下"Update"按鈕…
-function openFavColor() {
-  var modal = document.getElementById("modal");
-  modal.open = true;
-  var template = document.getElementById("fav-color");
-  template.removeAttribute("hidden");
-
-  if (modal.classList.contains('fade-out')) modal.classList.toggle('fade-out');
-  modal.classList.toggle('fade-in');
-}
-
-// 變更色彩，關閉色彩對話方塊
-function changeColor() {
-
-  color_data.forEach(function (arr_data) { //陣列的走訪，每走訪一個陣列元素，帶出的元素以arr_data變數呈現(arr_data我們自取的名稱)
-    if (currentColor.name == arr_data.name) { //找到color_data陣列中符合的色彩，
-      currentColor.color = arr_data.color_code;
-      currentColor.off_color = arr_data.off_color_code;
+  function initTheme() {
+    try { applyTheme(localStorage.getItem(storageKey)); } catch { applyTheme("blue"); }
+    for (const [id, name, color] of themes) {
+      const label = document.createElement("label");
+      label.className = "color-option";
+      const input = document.createElement("input");
+      input.type = "radio";
+      input.name = "theme";
+      input.value = id;
+      input.className = "visually-hidden";
+      const preview = document.createElement("span");
+      preview.className = "color-preview";
+      preview.style.setProperty("--swatch", color);
+      preview.setAttribute("aria-hidden", "true");
+      const caption = document.createElement("span");
+      caption.textContent = name;
+      label.append(input, preview, caption);
+      $("color-options").append(label);
     }
+  }
+  CalendarApp.initTheme = initTheme;
+  $("open-theme").addEventListener("click", () => {
+    document.querySelector(`input[name="theme"][value="${current}"]`).checked = true;
+    $("theme-dialog").showModal();
+    document.querySelector('input[name="theme"]:checked').focus();
   });
-  // console.log(currentColor.name + "," + currentColor.color + "," + currentColor.off_color);
-
-  var elements;
-
-  //先清除掉所有的style設置(td)
-  elements = document.getElementsByTagName("td");
-  for (let i = 0; i < elements.length; i++) {
-    elements[i].style = null;
-  }
-
-  //改變目前的色彩設置
-  elements = document.getElementsByClassName("color"); //找出所有有設置color類別的元素
-  for (let i = 0; i < elements.length; i++) {
-    elements[i].style.backgroundColor = currentColor.color;
-  }
-
-  elements = document.getElementsByClassName("border-color");
-  for (let i = 0; i < elements.length; i++) {
-    elements[i].style.borderColor = currentColor.color;
-  }
-
-  elements = document.getElementsByClassName("off-color");
-  for (let i = 0; i < elements.length; i++) {
-    elements[i].style.color = currentColor.off_color;
-  }
-  //關閉色彩對話方塊
-  var modal = document.getElementById("modal");
-  modal.open = false;
-  var template = document.getElementById("fav-color");
-  template.setAttribute("hidden", "hidden");
-
-  if (modal.classList.contains('fade-in')) modal.classList.toggle('fade-in');
-  modal.classList.toggle('fade-out');
-
-}
-
-function addCheckMark(color_name) {
-  currentColor.name = color_name;
-  //先清除色塊上原有的勾選符號
-  var colorPreviews = document.getElementsByClassName("color-preview");
-  for (let i = 0; i < colorPreviews.length; i++) {
-    if (colorPreviews[i].innerHTML != "") {
-      colorPreviews[i].innerHTML = "";
-      break;
-    }
-  }
-
-  //將點選色塊元素的內容加上勾選符號…
-  var element = document.getElementById(color_name);
-  if (element) element.innerHTML = "<i class='fas fa-check checkmark'></i>";
-}
+  $("theme-form").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const value = new FormData(event.currentTarget).get("theme");
+    applyTheme(value);
+    let message = "主題已更新。";
+    try { localStorage.setItem(storageKey, current); } catch { message = "主題已套用，但瀏覽器無法儲存設定。"; }
+    $("theme-dialog").close();
+    notify(message);
+  });
+})();

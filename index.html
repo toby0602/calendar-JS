@@ -1,231 +1,178 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#153b5f">
+    <meta name="description" content="簡單記錄每一天，支援本機儲存與個人主題的自適應月曆。">
+    <title>My Calendar</title>
+    <link rel="icon" href="images/icon1.png">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/current-day.css">
+    <link rel="stylesheet" href="css/calendar.css">
+    <link rel="stylesheet" href="css/modal.css">
+    <link rel="stylesheet" href="css/portrait.css">
+    <script src="js/lunar.js" defer></script>
+    <script src="js/holidays.js" defer></script>
+    <script src="js/updateDate.js" defer></script>
+    <script src="js/postIts.js" defer></script>
+    <script src="js/changeTheme.js" defer></script>
+  </head>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="css/main.css">
-  <link rel="stylesheet" href="css/current-day.css">
-  <link rel="stylesheet" href="css/calendar.css">
-  <link rel="stylesheet" href="css/modal.css">
-  <link rel="stylesheet" href="css/portrait.css">
-  <link rel="stylesheet" href="css/calendar-border.css">
-  <link rel="icon" href="images/icon1.png" type="image/png" sizes="72x72">
-  <script src="https://kit.fontawesome.com/e45ac9a14a.js" crossorigin="anonymous"></script>
-  <title>My Calendar</title>
+  <body>
+    <a class="skip-link" href="#calendar">跳至月曆</a>
 
-  <style>
-
-  </style>
-
-</head>
-
-<body>
-
-  <h3 id="back-year" class="background-text off-color">2020</h3>
-  <h4 class="background-text off-color">Calendar</h4>
-
-  <!-- 左欄 今日資訊  -->
-  <div id="current-day-info" class="color">
-    <h1 id="app-name-landscape" class="off-color center default-cursor">My Calendar</h1>
-    <div>
-      <h2 id="cur-year" class="center default-cursor current-day-heading">2020</h2>
-    </div>
-    <div class="">
-      <h1 id="cur-day" class="center default-cursor current-day-heading">Wednesday</h1>
-      <h1 id="cur-month" class="center default-cursor current-day-heading">November</h1>
-      <h1 id="cur-date" class="center default-cursor current-day-heading">13<sup>th</sup></h1>
-    </div>
-    <div class="">
-      <button id="theme-landscape" type="button" name="button" class="font button" onclick="openFavColor();">Change
-        Theme</button>
-    </div>
-  </div>
-
-  <!-- 右欄 月曆表格 -->
-  <div id="calendar">
-    <h1 id="app-name-portrait" class="center off-color">My Calendar</h1>
-    <table>
-      <thead class="color">
-        <tr>
-          <th colspan="7" class="border-color">
-            <h4 id="cal-year">2020</h4>
-            <div>
-              <i class="fas fa-caret-left icon" onclick="previousMonth();"></i>
-              <h3 id="cal-month">December</h3>
-              <i class="fas fa-caret-right icon" onclick="nextMonth();"></i>
-            </div>
-          </th>
-        </tr>
-        <tr>
-          <th class="weekday border-color">Sun</th>
-          <th class="weekday border-color">Mon</th>
-          <th class="weekday border-color">Tue</th>
-          <th class="weekday border-color">Wed</th>
-          <th class="weekday border-color">Thu</th>
-          <th class="weekday border-color">Fri</th>
-          <th class="weekday border-color">Sat</th>
-        </tr>
-      </thead>
-      <tbody id="table-body" class="border-color">
-        <tr>
-          <td onclick="dayClicked(this);">1</td>
-          <td onclick="dayClicked(this);">1</td>
-          <td onclick="dayClicked(this);">1</td>
-          <td onclick="dayClicked(this);">1</td>
-          <td onclick="dayClicked(this);">1</td>
-          <td onclick="dayClicked(this);">1</td>
-          <td onclick="dayClicked(this);">1</td>
-        </tr>
-        <tr>
-          <td onclick="dayClicked(this);">1</td>
-          <td onclick="dayClicked(this);">1</td>
-          <td onclick="dayClicked(this);">1</td>
-          <td id="current-day" onclick="dayClicked(this);">1</td>
-          <td onclick="dayClicked(this);">1</td>
-          <td onclick="dayClicked(this);">1</td>
-          <td onclick="dayClicked(this);">1</td>
-        </tr>
-        <tr>
-          <td onclick="dayClicked(this);">1</td>
-          <td onclick="dayClicked(this);">1</td>
-          <td onclick="dayClicked(this);">1</td>
-          <td class="tooltip" onclick="dayClicked(this);">1 <img src="images/note2.png" alt="記事"><span>這是提示！！！</span>
-          </td>
-          <td onclick="dayClicked(this);">1</td>
-          <td onclick="dayClicked(this);">1</td>
-          <td onclick="dayClicked(this);">1</td>
-        </tr>
-        <tr>
-          <td onclick="dayClicked(this);">1</td>
-          <td onclick="dayClicked(this);">1</td>
-          <td onclick="dayClicked(this);">1</td>
-          <td onclick="dayClicked(this);">1</td>
-          <td onclick="dayClicked(this);">1</td>
-          <td onclick="dayClicked(this);">1</td>
-          <td onclick="dayClicked(this);">1</td>
-        </tr>
-        <tr>
-          <td onclick="dayClicked(this);">1</td>
-          <td onclick="dayClicked(this);">1</td>
-          <td onclick="dayClicked(this);">1</td>
-          <td onclick="dayClicked(this);">1</td>
-          <td onclick="dayClicked(this);">1</td>
-          <td onclick="dayClicked(this);">1</td>
-          <td onclick="dayClicked(this);">1</td>
-        </tr>
-        <tr>
-          <td onclick="dayClicked(this);">1</td>
-          <td onclick="dayClicked(this);">1</td>
-          <td onclick="dayClicked(this);">1</td>
-          <td onclick="dayClicked(this);">1</td>
-          <td onclick="dayClicked(this);">1</td>
-          <td onclick="dayClicked(this);">1</td>
-          <td onclick="dayClicked(this);">1</td>
-        </tr>
-      </tbody>
-    </table>
-    <button id="theme-portrait" type="button" name="button" class="font button color" onclick="openFavColor();">Change
-      Theme</button>
-  </div>
-
-  <!-- 對話方塊 -->
-  <dialog id="modal">
-    <!-- 色彩對話方塊 -->
-    <div id="fav-color" hidden>
-      <div class="popup">
-        <h4 class="center">What's your favorite color?</h4>
-        <div id="color-options">
-          <div class="color-option">
-            <div class="color-preview" id="blue" style="background-color: #153b5f;" onclick="addCheckMark('blue');"><i
-                class="fas fa-check checkmark"></i></div>
-            <h5>Blue</h5>
-          </div>
-          <div class="color-option">
-            <div class="color-preview" id="red" style="background-color: #D01212;" onclick="addCheckMark('red');"></div>
-            <h5>Red</h5>
-          </div>
-          <div class="color-option">
-            <div class="color-preview" id="purple" style="background-color: #721D89;" onclick="addCheckMark('purple');">
-            </div>
-            <h5>Purple</h5>
-          </div>
-          <div class="color-option">
-            <div class="color-preview" id="green" style="background-color: #158348;" onclick="addCheckMark('green');">
-            </div>
-            <h5>Green</h5>
-          </div>
-          <div class="color-option">
-            <div class="color-preview" id="orange" style="background-color: #EE742D;" onclick="addCheckMark('orange');">
-            </div>
-            <h5>Orange</h5>
-          </div>
-          <div class="color-option">
-            <div class="color-preview" id="deep-orange" style="background-color: #F13C26;"
-              onclick="addCheckMark('deep-orange');"></div>
-            <h5>Deep Orange</h5>
-          </div>
-          <div class="color-option">
-            <div class="color-preview" id="baby-blue" style="background-color: #31B2FC;"
-              onclick="addCheckMark('baby-blue');"></div>
-            <h5>Baby Blue</h5>
-          </div>
-          <div class="color-option">
-            <div class="color-preview" id="cerise" style="background-color: #EA3D69;" onclick="addCheckMark('cerise');">
-            </div>
-            <h5>Cerise</h5>
-          </div>
-          <div class="color-option">
-            <div class="color-preview" id="lime" style="background-color: #36C945;" onclick="addCheckMark('lime');">
-            </div>
-            <h5>Lime</h5>
-          </div>
-          <div class="color-option">
-            <div class="color-preview" id="teal" style="background-color: #2FCCB9;" onclick="addCheckMark('teal');">
-            </div>
-            <h5>Teal</h5>
-          </div>
-          <div class="color-option">
-            <div class="color-preview" id="pink" style="background-color: #F50D7A;" onclick="addCheckMark('pink');">
-            </div>
-            <h5>Pink</h5>
-          </div>
-          <div class="color-option">
-            <div class="color-preview" id="black" style="background-color: #212524;" onclick="addCheckMark('black');">
-            </div>
-            <h5>Black</h5>
-          </div>
+    <main class="app-shell">
+      <aside id="current-day-info" aria-label="今日資訊">
+        <a class="brand" href="./">
+          <span class="brand-icon" aria-hidden="true">▦</span> My Calendar
+          <span class="brand-dot">.</span>
+        </a>
+        <span class="local-badge"><span aria-hidden="true">●</span> 本機記事</span>
+        <div class="today-summary">
+          <div class="today-label">
+            <span></span> 今天，值得記下的一天</div>
+          <time id="today-date" class="today-full">
+            <span class="today-calendar-date"><span id="cur-year"></span> 年 <span id="cur-month"></span> 月 <span id="cur-day-of-month"></span> 日</span>
+            <span id="cur-day" class="today-weekday"></span>
+          </time>
+          <h1>把日子過好，<br>把小事記好。</h1>
+          <p class="intro">一個靈感、一件待辦，或一個值得記住的瞬間。為每一天留一點空間。</p>
+          <button id="add-today" class="button light-button" type="button">＋ 記下今天</button>
         </div>
-        <button id="update-theme-button" class="button font" onclick="changeColor();">Update</button>
-      </div>
-    </div>
-
-    <!-- 記事對話方塊 -->
-    <div id="make-note" hidden>
-      <div class="popup">
-        <h4>Add a note to the calendar</h4>
-        <textarea id="edit-post-it" class="font" name="post-it" autofocus></textarea>
-        <div>
-          <button class="button font post-it-button" id="add-post-it" onclick="submitPostIt();">Post It</button>
-          <button class="button font post-it-button" id="delete-button" onclick="deleteNote();">Delete It</button>
+        <div class="sidebar-footer">
+          <button id="open-theme" class="theme-button" type="button">
+            <span class="theme-symbol" aria-hidden="true">◐</span> 更換主題 <span aria-hidden="true">↗</span>
+          </button>
+          <p>YOUR DAYS, YOUR OWN WAY.</p>
         </div>
-      </div>
-  </dialog>
+      </aside>
 
-  <script src="js/updateDate.js"></script>
-  <script src="js/changeTheme.js"></script>
-  <script src="js/postIts.js"></script>
+      <section id="calendar" aria-label="月曆與記事">
+        <div class="calendar-card">
+          <div class="calendar-toolbar">
+            <button id="choose-month" class="month-picker-trigger" type="button" aria-haspopup="dialog" aria-controls="month-dialog">
+              <span id="cal-year"></span>
+              <span class="month-line"><strong id="cal-month"></strong></span>
+            </button>
+            <nav class="month-navigation" aria-label="月份導覽">
+              <button id="previous-month" class="icon-button" type="button" aria-label="上一個月">‹</button>
+              <button id="go-today" class="button today-button" type="button">今天</button>
+              <button id="next-month" class="icon-button" type="button" aria-label="下一個月">›</button>
+            </nav>
+          </div>
 
-  <script>
+          <table aria-label="月曆">
+            <thead>
+              <tr>
+                <th scope="col">日</th>
+                <th scope="col">一</th>
+                <th scope="col">二</th>
+                <th scope="col">三</th>
+                <th scope="col">四</th>
+                <th scope="col">五</th>
+                <th scope="col">六</th>
+              </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+          </table>
 
-    let today = new Date();  //新增一個Date物件，命名為today
-    let thisYear = today.getFullYear();
-    let thisMonth = today.getMonth();
-    let thisDate = today.getDate();
-    updateDates();
-    fillInMonth(thisYear, thisMonth, thisDate);
+          <div class="calendar-legend">
+            <span><i class="legend-today"></i> 今天</span>
+            <span><i class="legend-note"></i> 有記事</span>
+            <span><i class="legend-festival"></i> 節日</span>
+            <span><i class="legend-holiday"></i> 休假日</span>
+          </div>
+          <p id="holiday-data-hint" class="holiday-data-hint" hidden>此年份尚無官方休假資料</p>
+        </div>
 
-  </script>
-</body>
+        <section class="notes-section" aria-labelledby="notes-title">
+          <div class="notes-heading">
+            <h3 id="notes-title">本月記事 <span id="note-count">0</span></h3>
+            <span>讓重要的小事，有個位置。</span>
+          </div>
+          <div id="month-notes"></div>
+        </section>
 
+        <footer class="page-footer">
+          <span>慢慢來，每一天都是新的開始。</span>
+          <a href="https://data.gov.tw/dataset/14718" target="_blank" rel="noopener noreferrer">休假資料：行政院人事行政總處（2025–2027）</a>
+        </footer>
+      </section>
+    </main>
+
+    <dialog id="note-dialog" aria-labelledby="note-title">
+      <form id="note-form" class="popup">
+        <div class="dialog-heading">
+          <div>
+            <h2 id="note-title">每日記事</h2>
+          </div>
+          <button class="icon-button" type="button" data-close="note-dialog" aria-label="關閉記事">×</button>
+        </div>
+        <p id="note-date"></p>
+        <label for="edit-post-it">今天想記下什麼？</label>
+        <textarea id="edit-post-it" name="note" maxlength="2000" placeholder="寫下待辦、靈感，或今天的小確幸…" required></textarea>
+        <div class="editor-hint">
+          <span>Ctrl / ⌘ + Enter 儲存</span>
+          <span id="note-length">0 / 2000</span>
+        </div>
+        <p id="note-error" class="error-message" role="alert"></p>
+        <div class="dialog-actions">
+          <button class="button danger-button" id="delete-button" type="button">刪除記事</button>
+          <button class="button secondary-button" type="button" data-close="note-dialog">取消</button>
+          <button class="button primary-button" type="submit">儲存記事</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="theme-dialog" aria-labelledby="theme-title">
+      <form id="theme-form" class="popup">
+        <div class="dialog-heading">
+          <div>
+            <p class="eyebrow">MAKE IT YOURS</p>
+            <h2 id="theme-title">選一個喜歡的顏色</h2>
+          </div>
+          <button class="icon-button" type="button" data-close="theme-dialog" aria-label="關閉主題">×</button>
+        </div>
+        <p class="dialog-description">讓月曆，帶一點你的個性。</p>
+        <fieldset id="color-options">
+          <legend class="visually-hidden">主題顏色</legend>
+        </fieldset>
+        <div class="dialog-actions">
+          <button class="button secondary-button" type="button" data-close="theme-dialog">取消</button>
+          <button class="button primary-button" type="submit">套用主題</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="month-dialog" aria-labelledby="month-title">
+      <form id="month-form" class="popup">
+        <div class="dialog-heading">
+          <div><h2 id="month-title">選擇年月</h2></div>
+          <button class="icon-button" type="button" data-close="month-dialog" aria-label="關閉年月選擇">×</button>
+        </div>
+        <label class="year-label" for="picker-year">年份</label>
+        <input id="picker-year" name="year" type="number" min="100" max="9999" step="1" required>
+        <fieldset id="picker-months" class="month-options">
+          <legend>月份</legend>
+          <label><input type="radio" name="month" value="0" required><span>1 月</span></label>
+          <label><input type="radio" name="month" value="1"><span>2 月</span></label>
+          <label><input type="radio" name="month" value="2"><span>3 月</span></label>
+          <label><input type="radio" name="month" value="3"><span>4 月</span></label>
+          <label><input type="radio" name="month" value="4"><span>5 月</span></label>
+          <label><input type="radio" name="month" value="5"><span>6 月</span></label>
+          <label><input type="radio" name="month" value="6"><span>7 月</span></label>
+          <label><input type="radio" name="month" value="7"><span>8 月</span></label>
+          <label><input type="radio" name="month" value="8"><span>9 月</span></label>
+          <label><input type="radio" name="month" value="9"><span>10 月</span></label>
+          <label><input type="radio" name="month" value="10"><span>11 月</span></label>
+          <label><input type="radio" name="month" value="11"><span>12 月</span></label>
+        </fieldset>
+        <div class="dialog-actions">
+          <button class="button secondary-button" type="button" data-close="month-dialog">取消</button>
+          <button class="button primary-button" type="submit">前往月份</button>
+        </div>
+      </form>
+    </dialog>
+    <p id="status-message" class="status-message" role="status" aria-live="polite"></p>
+    <noscript>請開啟 JavaScript，才能使用月曆及記事功能。</noscript>
+  </body>
 </html>
