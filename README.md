@@ -2,6 +2,8 @@
 
 使用原生 HTML、CSS、JavaScript 製作的自適應月曆，不需要框架或建置流程。
 
+展示網站：https://toby0602.github.io/calendar-JS/
+
 ## 使用方式
 
 直接開啟 `index.html`，或用任意靜態伺服器提供專案目錄。建議固定使用同一個網址與瀏覽器，避免因來源不同而看到不同的儲存資料。
