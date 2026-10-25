@@ -39,6 +39,9 @@ async function testAccount(browser) {
     await page.waitForSelector('.day-button');
     assert.equal(await page.locator('#storage-label').textContent(), '帳號記事');
     assert.match(await page.locator('#month-notes').textContent(), /雲端 B/);
+    await page.locator('#import-notes-file').setInputFiles({ name: 'other-origin.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify({ version: 1, notes: { '2026-09-21': '其他網址下載的備份' } })) });
+    await page.waitForFunction(() => document.getElementById('backup-status').textContent.includes('已匯入 1 筆'));
+    assert.equal(await page.locator('#note-count').textContent(), '3');
     assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem('my-calendar.notes.v1'))), { '2026-09-16': '本機 A', '2026-09-17': '本機 B' });
     await page.locator('#open-account').click();
     for (const width of [344, 390, 1440]) {

@@ -21,6 +21,7 @@
     <script src="js/postIts.js" defer></script>
     <script src="js/changeTheme.js" defer></script>
     <script src="js/account.js" defer></script>
+    <script src="js/backups.js" defer></script>
     <script src="js/app.js" defer></script>
   </head>
 
@@ -95,8 +96,13 @@
         <section class="notes-section" aria-labelledby="notes-title">
           <div class="notes-heading">
             <h3 id="notes-title">本月記事 <span id="note-count">0</span></h3>
-            <span>讓重要的小事，有個位置。</span>
+            <div class="notes-actions">
+              <button id="export-notes" type="button">匯出記事</button>
+              <button id="import-notes-button" type="button">匯入備份</button>
+              <input id="import-notes-file" type="file" accept="application/json,.json" hidden>
+            </div>
           </div>
+          <p id="backup-status" class="backup-status" role="status" hidden></p>
           <div id="month-notes"></div>
         </section>
 

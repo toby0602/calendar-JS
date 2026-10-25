@@ -22,7 +22,8 @@
   }
   const cloudStore = {
     read: async () => (await request("/notes")).notes,
-    change: async (date, value, expected) => (await request("/notes/" + encodeURIComponent(date), "PUT", { value, expected })).notes
+    change: async (date, value, expected) => (await request("/notes/" + encodeURIComponent(date), "PUT", { value, expected })).notes,
+    importNotes: notes => request("/notes/import", "POST", { notes })
   };
   async function activate(nextUser) {
     // Fetch before replacing the displayed account; never show one user's notes under another identity.

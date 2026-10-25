@@ -417,7 +417,20 @@ td:last-child {
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 15px;
+  flex-wrap: wrap;
 }
+
+.notes-actions { display: flex; gap: 8px; }
+.notes-actions button {
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--paper);
+  color: var(--primary);
+  font-size: 11px;
+}
+.notes-actions button:hover { background: var(--tint); }
+.backup-status { margin-bottom: 12px; color: var(--muted); font-size: 12px; line-height: 1.7; }
 
 .notes-heading h3 {
   font-weight: 600;

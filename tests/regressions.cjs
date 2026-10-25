@@ -32,11 +32,12 @@ async function testMultiTab(browser, url) {
     await edit(b, '2026-09-16', '不能遺失的舊分頁草稿');
     await submit(a);
     await b.locator('#note-form [type="submit"]').click();
-    await b.waitForFunction(() => document.getElementById('note-error').textContent.includes('另一個分頁'));
+    await b.waitForFunction(() => !document.querySelector('#note-form [type="submit"]').disabled && document.getElementById('note-error').textContent.includes('此日期的記事已在'));
     assert.equal(await b.locator('#note-dialog').evaluate(dialog => dialog.open), true);
     assert.equal(await b.locator('#edit-post-it').inputValue(), '不能遺失的舊分頁草稿');
     assert.equal((await read())['2026-09-16'], '新版記事');
     await b.keyboard.press('Escape');
+    await b.locator('#note-dialog').waitFor({ state: 'hidden' });
     await b.locator('[data-date="2026-09-16"]').click();
     assert.equal(await b.locator('#edit-post-it').inputValue(), '新版記事');
     await b.locator('#delete-button').click();
@@ -62,4 +63,25 @@ async function testMidnight(browser, url) {
   } finally { await context.close(); }
 }
 
-module.exports = { openPage, testMultiTab, testMidnight };
+async function testBackups(browser, url) {
+  const fs = require('node:fs');
+  const context = await browser.newContext({ timezoneId: 'Asia/Taipei', acceptDownloads: true });
+  try {
+    const page = await openPage(context, url);
+    const upload = notes => page.locator('#import-notes-file').setInputFiles({ name: 'notes.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify({ version: 1, notes })) });
+    await upload({ '2026-09-17': '原始記事' });
+    await page.waitForFunction(() => document.getElementById('backup-status').textContent.includes('已匯入 1 筆'));
+    await upload({ '2026-09-17': '不可覆寫', '2026-09-18': '新增記事' });
+    await page.waitForFunction(() => document.getElementById('backup-status').textContent.includes('1 筆同日期'));
+    assert.equal(await page.locator('#note-count').textContent(), '2');
+    await upload({ '2026-02-30': '不合法日期' });
+    await page.waitForFunction(() => document.getElementById('backup-status').textContent.includes('匯入失敗'));
+    const downloadEvent = page.waitForEvent('download');
+    await page.locator('#export-notes').click();
+    const download = await downloadEvent;
+    const exported = JSON.parse(fs.readFileSync(await download.path(), 'utf8'));
+    assert.deepEqual(exported, { version: 1, notes: { '2026-09-17': '原始記事', '2026-09-18': '新增記事' } });
+  } finally { await context.close(); }
+}
+
+module.exports = { openPage, testMultiTab, testMidnight, testBackups };

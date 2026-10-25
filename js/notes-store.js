@@ -3,9 +3,7 @@
 // The UI depends on read/change rather than on localStorage itself.
 window.CalendarLocalNotes = (() => {
   const storageKey = "my-calendar.notes.v1";
-  function read() {
-    const raw = localStorage.getItem(storageKey);
-    const data = raw ? JSON.parse(raw) : {};
+  function validate(data) {
     if (!data || typeof data !== "object" || Array.isArray(data)) throw new Error("Invalid notes");
     const notes = {};
     for (const [key, value] of Object.entries(data)) {
@@ -13,6 +11,14 @@ window.CalendarLocalNotes = (() => {
       if (value.trim()) notes[key] = value;
     }
     return notes;
+  }
+  function read() {
+    const raw = localStorage.getItem(storageKey);
+    return validate(raw ? JSON.parse(raw) : {});
+  }
+  async function locked(callback) {
+    if (navigator.locks?.request) return navigator.locks.request(storageKey, callback);
+    return callback();
   }
   async function change(key, value, expected) {
     const commit = () => {
@@ -28,8 +34,21 @@ window.CalendarLocalNotes = (() => {
       return notes;
     };
     // Web Locks serialize simultaneous writes across tabs on HTTPS/localhost.
-    if (navigator.locks?.request) return navigator.locks.request(storageKey, commit);
-    return commit();
+    return locked(commit);
   }
-  return { read, change, storageKey };
+  async function importNotes(data) {
+    const incoming = validate(data);
+    if (Object.keys(incoming).length > 1000) throw new Error("每次最多匯入 1,000 筆記事。");
+    return locked(() => {
+      const notes = read();
+      let imported = 0;
+      for (const [key, value] of Object.entries(incoming)) {
+        if (Object.hasOwn(notes, key)) continue;
+        notes[key] = value; imported++;
+      }
+      localStorage.setItem(storageKey, JSON.stringify(notes));
+      return { notes, imported, skipped: Object.keys(incoming).length - imported };
+    });
+  }
+  return { read, change, importNotes, validate, storageKey };
 })();
