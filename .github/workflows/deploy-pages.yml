@@ -3,6 +3,8 @@ name: Deploy GitHub Pages
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -15,7 +17,24 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm test
+        env:
+          BROWSER_CHANNEL: chromium
+      - run: npm run build:holidays
+      - run: git diff --exit-code -- js/holidays.js
   deploy:
+    needs: test
+    if: github.event_name != 'pull_request'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -25,10 +44,12 @@ jobs:
         uses: actions/checkout@v4
       - name: Configure Pages
         uses: actions/configure-pages@v5
+      - name: Export public assets
+        run: node scripts/build-site.cjs
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
       - name: Deploy site
         id: deployment
         uses: actions/deploy-pages@v4

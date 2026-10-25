@@ -1,22 +1,12 @@
-/* Run with Node.js and Playwright available on NODE_PATH. No production dependencies. */
+/* npm test (BROWSER_CHANNEL=chromium in CI; Microsoft Edge locally). */
 const assert = require('node:assert/strict');
-const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
 const { chromium } = require('playwright');
 const { testMultiTab, testMidnight } = require('./regressions.cjs');
-const root = path.resolve(__dirname, '..');
-const server = http.createServer((req, res) => {
-  const pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
-  const file = path.resolve(root, '.' + (pathname === '/' ? '/index.html' : pathname));
-  if (!file.startsWith(root + path.sep)) { res.writeHead(403).end(); return; }
-  fs.readFile(file, (error, content) => {
-    if (error) { res.writeHead(404).end(); return; }
-    res.setHeader('Content-Type', ({ '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'text/javascript', '.png': 'image/png' })[path.extname(file)] || 'application/octet-stream');
-    res.end(content);
-  });
-});
+const { createStaticServer } = require('../scripts/serve.cjs');
+const server = createStaticServer();
 (async () => {
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   let browser;
