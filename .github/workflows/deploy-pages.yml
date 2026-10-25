@@ -19,6 +19,21 @@ concurrency:
 jobs:
   test:
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: ci-root-password
+          MYSQL_DATABASE: calendar_test
+          MYSQL_USER: calendar_app
+          MYSQL_PASSWORD: ci-app-password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -pci-root-password"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=12
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -30,6 +45,12 @@ jobs:
       - run: npm test
         env:
           BROWSER_CHANNEL: chromium
+          RUN_MYSQL_TESTS: '1'
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_USER: calendar_app
+          DB_PASSWORD: ci-app-password
+          DB_NAME: calendar_test
       - run: npm run build:holidays
       - run: git diff --exit-code -- js/holidays.js
   deploy:

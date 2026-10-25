@@ -5,11 +5,17 @@
   "description": "A responsive Taiwan calendar with lunar dates, official holidays and personal notes.",
   "engines": { "node": ">=22.13" },
   "scripts": {
-    "dev": "node --watch scripts/serve.cjs",
-    "start": "node scripts/serve.cjs",
+    "dev": "node --watch --env-file-if-exists=.env server/index.cjs",
+    "dev:static": "node scripts/serve.cjs",
+    "start": "node --env-file-if-exists=.env server/index.cjs",
+    "dev:mysql": "node --watch --env-file-if-exists=.env server/index.cjs --mysql",
+    "db:init": "node --env-file-if-exists=.env server/migrate.cjs",
     "build": "node scripts/build-site.cjs",
     "build:holidays": "node scripts/build-holidays.cjs",
-    "test": "node tests/calendar.cjs"
+    "test": "npm run test:api && npm run test:ui",
+    "test:api": "node --env-file-if-exists=.env --test tests/api.test.cjs",
+    "test:ui": "node tests/calendar.cjs"
   },
+  "dependencies": { "express": "5.3.0", "mysql2": "3.24.6" },
   "devDependencies": { "playwright": "1.64.1" }
 }

@@ -1,0 +1,23 @@
+CREATE TABLE IF NOT EXISTS calendar_users (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(32) CHARACTER SET ascii COLLATE ascii_bin NOT NULL UNIQUE,
+  password_hash VARCHAR(200) NOT NULL,
+  created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)
+);
+
+CREATE TABLE IF NOT EXISTS calendar_sessions (
+  token_hash CHAR(64) CHARACTER SET ascii COLLATE ascii_bin PRIMARY KEY,
+  user_id BIGINT UNSIGNED NOT NULL,
+  expires_at DATETIME(3) NOT NULL,
+  INDEX (expires_at),
+  FOREIGN KEY (user_id) REFERENCES calendar_users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS calendar_notes (
+  user_id BIGINT UNSIGNED NOT NULL,
+  note_date DATE NOT NULL,
+  content TEXT NOT NULL,
+  updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+  PRIMARY KEY (user_id, note_date),
+  FOREIGN KEY (user_id) REFERENCES calendar_users(id) ON DELETE CASCADE
+);
