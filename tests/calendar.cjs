@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
 const { chromium } = require('playwright');
-const { testMultiTab } = require('./regressions.cjs');
+const { testMultiTab, testMidnight } = require('./regressions.cjs');
 const root = path.resolve(__dirname, '..');
 const server = http.createServer((req, res) => {
   const pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
@@ -261,6 +261,7 @@ const server = http.createServer((req, res) => {
     assert.ok(marker.x + marker.width < circle.x || marker.y + marker.height < circle.y || marker.x > circle.x + circle.width || marker.y > circle.y + circle.height, 'Mobile note marker must stay separate from the today circle');
     await festivalContext.close();
     await testMultiTab(browser, `http://127.0.0.1:${server.address().port}`);
+    await testMidnight(browser, `http://127.0.0.1:${server.address().port}`);
     assert.deepEqual(errors, []);
     console.log('PASS: 10 viewports, lunar dates, Taiwan festivals, DGPA holidays and workdays, month picker, modal bounds, leap years, year rollover, note CRUD/persistence, text safety, theme persistence, and storage failures.');
     console.log('Screenshots: ' + screenshotDir);

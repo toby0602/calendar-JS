@@ -45,4 +45,21 @@ async function testMultiTab(browser, url) {
   } finally { await context.close(); }
 }
 
-module.exports = { openPage, testMultiTab };
+async function testMidnight(browser, url) {
+  const context = await browser.newContext({ timezoneId: 'Asia/Taipei' });
+  try {
+    for (const trigger of ['#open-theme', '#choose-month', '#add-today']) {
+      const page = await openPage(context, url, '2026-09-17T15:59:30Z');
+      await page.locator(trigger).click();
+      if (trigger === '#add-today') await page.locator('#edit-post-it').fill('午夜仍在編輯的草稿');
+      await page.clock.runFor(61000);
+      assert.equal(await page.locator('#cur-day-of-month').textContent(), '18');
+      if (trigger === '#add-today') assert.equal(await page.locator('#edit-post-it').inputValue(), '午夜仍在編輯的草稿');
+      await page.keyboard.press('Escape');
+      await page.waitForFunction(() => document.querySelector('[aria-current="date"]')?.dataset.date === '2026-09-18');
+      await page.close();
+    }
+  } finally { await context.close(); }
+}
+
+module.exports = { openPage, testMultiTab, testMidnight };
