@@ -5,15 +5,7 @@ window.CalendarApp = (() => {
   const today = new Date();
   const state = { year: today.getFullYear(), month: today.getMonth(), notes: {}, selectedDate: null };
   const $ = (id) => document.getElementById(id);
-  const dateKey = (date) => `${String(date.getFullYear()).padStart(4, "0")}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-  const parseDate = (key) => {
-    const [year, month, day] = key.split("-").map(Number);
-    const date = new Date(0);
-    date.setFullYear(year, month - 1, day);
-    date.setHours(12, 0, 0, 0);
-    return date;
-  };
-  const dateLabel = (date) => new Intl.DateTimeFormat("zh-TW", { year: "numeric", month: "long", day: "numeric", weekday: "long" }).format(date);
+  const { dateKey, parseDate, dateLabel } = CalendarDateUtils;
   let statusTimer;
   function notify(message) {
     clearTimeout(statusTimer);
@@ -123,9 +115,9 @@ window.CalendarApp = (() => {
   return { state, $, dateKey, parseDate, dateLabel, notify, updateToday, renderMonth, moveMonth, goToday };
 })();
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   const app = CalendarApp;
-  app.loadNotes();
+  await app.loadNotes();
   app.initTheme();
   app.updateToday();
   app.renderMonth();

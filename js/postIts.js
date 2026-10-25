@@ -3,38 +3,36 @@
 (() => {
   const app = CalendarApp;
   const { $, state } = app;
-  const storageKey = "my-calendar.notes.v1";
-  let storageInvalid = false;
-  function loadNotes() {
+  app.notesStore = CalendarLocalNotes;
+  let baseNote = "";
+  let saving = false;
+  async function loadNotes() {
     try {
-      const raw = localStorage.getItem(storageKey);
-      const data = raw ? JSON.parse(raw) : {};
-      if (!data || typeof data !== "object" || Array.isArray(data)) throw new Error("Invalid notes");
-      const notes = {};
-      for (const [key, value] of Object.entries(data)) {
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(key) || app.dateKey(app.parseDate(key)) !== key || typeof value !== "string" || value.length > 2000) throw new Error("Invalid note");
-        if (value.trim()) notes[key] = value;
-      }
-      state.notes = notes;
-      storageInvalid = false;
-    } catch {
-      storageInvalid = true;
-      app.notify("無法讀取本機記事。請檢查瀏覽器儲存設定；現有資料不會被覆寫。");
-    }
-  }
-  function saveNotes(next) {
-    try {
-      if (storageInvalid) throw new Error("Storage unavailable");
-      localStorage.setItem(storageKey, JSON.stringify(next));
-      state.notes = next;
+      state.notes = await app.notesStore.read();
       return true;
     } catch {
-      $("note-error").textContent = "儲存失敗，請檢查瀏覽器儲存空間或權限。你的文字仍保留在這裡。";
+      app.notify("無法讀取記事。請檢查儲存設定或連線；現有資料不會被覆寫。");
       return false;
     }
   }
-  function openNote(key) {
+  async function saveNote(value) {
+    if (saving) return;
+    saving = true;
+    $("note-form").querySelectorAll("button").forEach(button => { button.disabled = true; });
+    try {
+      state.notes = await app.notesStore.change(state.selectedDate, value, baseNote);
+      finish(value === null ? "記事已刪除。" : "記事已儲存。");
+    } catch (error) {
+      $("note-error").textContent = error.code === "CONFLICT" ? error.message : "儲存失敗，請檢查儲存空間、權限或連線。你的文字仍保留在這裡。";
+    } finally {
+      saving = false;
+      $("note-form").querySelectorAll("button").forEach(button => { button.disabled = false; });
+    }
+  }
+  async function openNote(key) {
+    await loadNotes();
     state.selectedDate = key;
+    baseNote = state.notes[key] || "";
     $("note-title").textContent = state.notes[key] ? "編輯每日記事" : "新增每日記事";
     const date = app.parseDate(key);
     const details = CalendarDates.getDayDetails(date);
@@ -105,12 +103,19 @@
       $("edit-post-it").focus();
       return;
     }
-    if (saveNotes({ ...state.notes, [state.selectedDate]: note })) finish("記事已儲存在此瀏覽器。");
+    saveNote(note);
   });
   $("delete-button").addEventListener("click", () => {
-    const next = { ...state.notes };
-    delete next[state.selectedDate];
-    if (saveNotes(next)) finish("記事已刪除。");
+    saveNote(null);
+  });
+  $("note-dialog").addEventListener("cancel", event => { if (saving) event.preventDefault(); });
+  window.addEventListener("storage", async event => {
+    if (app.notesStore !== CalendarLocalNotes || (event.key !== CalendarLocalNotes.storageKey && event.key !== null)) return;
+    if (!await loadNotes()) return;
+    if ($("note-dialog").open) {
+      if ((state.notes[state.selectedDate] || "") !== baseNote) $("note-error").textContent = "另一個分頁已更新此記事。儲存前請先複製草稿，再重新開啟記事。";
+      app.renderNotes();
+    } else if (!document.querySelector("dialog[open]")) app.renderMonth();
   });
   $("edit-post-it").addEventListener("input", () => {
     $("note-length").textContent = `${$("edit-post-it").value.length} / 2000`;

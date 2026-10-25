@@ -5,6 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
 const { chromium } = require('playwright');
+const { testMultiTab } = require('./regressions.cjs');
 const root = path.resolve(__dirname, '..');
 const server = http.createServer((req, res) => {
   const pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
@@ -130,6 +131,7 @@ const server = http.createServer((req, res) => {
     assert.equal(await page.locator('#cal-month').textContent(), month);
     assert.equal(await page.locator('#note-dialog').evaluate(d => d.open), true);
     await page.locator('#edit-post-it').press('Control+Enter');
+    await page.locator('#note-dialog').waitFor({ state: 'hidden' });
     assert.equal(await page.locator('#note-count').textContent(), '1');
     assert.equal(await page.locator('.note-item p').textContent(), payload);
     const notePlacement = await page.locator(`[data-date="${today}"]`).evaluate(day => {
@@ -166,6 +168,7 @@ const server = http.createServer((req, res) => {
     await page.locator('.note-item').click();
     await page.locator('#edit-post-it').fill('更新後的記事\n第二行');
     await page.locator('#note-form [type="submit"]').click();
+    await page.locator('#note-dialog').waitFor({ state: 'hidden' });
     assert.equal(await page.locator('#note-count').textContent(), '1');
     await page.locator('.note-item').click();
     await page.locator('#edit-post-it').fill('   ');
@@ -222,6 +225,7 @@ const server = http.createServer((req, res) => {
     }
     await page.locator(`[data-date="${today}"]`).click();
     await page.locator('#delete-button').click();
+    await page.locator('#note-dialog').waitFor({ state: 'hidden' });
     await page.reload();
     assert.equal(await page.locator('#note-count').textContent(), '0');
     // Storage failures must retain the draft and must not report success.
@@ -229,6 +233,7 @@ const server = http.createServer((req, res) => {
     await page.locator('#add-today').click();
     await page.locator('#edit-post-it').fill('不能遺失的草稿');
     await page.locator('#note-form [type="submit"]').click();
+    await page.waitForFunction(() => document.getElementById('note-error').textContent.length > 0);
     assert.equal(await page.locator('#edit-post-it').inputValue(), '不能遺失的草稿');
     assert.ok(await page.locator('#note-error').textContent());
     await page.reload();
@@ -244,6 +249,7 @@ const server = http.createServer((req, res) => {
     await festivalPage.locator('[aria-current="date"]').click();
     await festivalPage.locator('#edit-post-it').fill('節日當天的記事');
     await festivalPage.locator('#note-form [type="submit"]').click();
+    await festivalPage.locator('#note-dialog').waitFor({ state: 'hidden' });
     const festivalToday = festivalPage.locator('[aria-current="date"]');
     assert.equal(await festivalToday.getAttribute('data-date'), '2026-10-25');
     assert.equal(await festivalToday.locator('.note-preview').isVisible(), false);
@@ -254,6 +260,7 @@ const server = http.createServer((req, res) => {
     const marker = await festivalToday.locator('.note-dot').boundingBox();
     assert.ok(marker.x + marker.width < circle.x || marker.y + marker.height < circle.y || marker.x > circle.x + circle.width || marker.y > circle.y + circle.height, 'Mobile note marker must stay separate from the today circle');
     await festivalContext.close();
+    await testMultiTab(browser, `http://127.0.0.1:${server.address().port}`);
     assert.deepEqual(errors, []);
     console.log('PASS: 10 viewports, lunar dates, Taiwan festivals, DGPA holidays and workdays, month picker, modal bounds, leap years, year rollover, note CRUD/persistence, text safety, theme persistence, and storage failures.');
     console.log('Screenshots: ' + screenshotDir);
