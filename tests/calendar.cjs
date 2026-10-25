@@ -21,8 +21,10 @@ const server = http.createServer((req, res) => {
   let browser;
   try {
     browser = await chromium.launch({ channel: process.env.BROWSER_CHANNEL || 'msedge', headless: true });
-    const context = await browser.newContext();
+    const context = await browser.newContext({ timezoneId: 'Asia/Taipei' });
     const page = await context.newPage();
+    // Keep ordinary-day layout checks independent of the date the suite runs.
+    await page.clock.install({ time: new Date('2026-09-17T04:00:00Z') });
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     await page.goto(`http://127.0.0.1:${server.address().port}`);
@@ -106,7 +108,7 @@ const server = http.createServer((req, res) => {
     await page.locator('.calendar-card').dispatchEvent('wheel', { deltaY: 100, bubbles: true, cancelable: true });
     assert.equal(await page.locator('#cal-month').textContent(), startingMonth);
     await page.locator('#choose-month').click();
-    assert.equal(await page.locator('#picker-year').inputValue(), String(new Date().getFullYear()));
+    assert.equal(await page.locator('#picker-year').inputValue(), '2026');
     await page.locator('#picker-year').fill('2032');
     await page.locator('#picker-months label').filter({ hasText: '4 月' }).click();
     await page.locator('#month-form [type="submit"]').click();
@@ -234,6 +236,24 @@ const server = http.createServer((req, res) => {
     await page.reload();
     assert.equal(await page.locator('.day-button').count(), 42);
     assert.equal(await page.evaluate(() => localStorage.getItem('my-calendar.notes.v1')), '{broken');
+    const festivalContext = await browser.newContext({ timezoneId: 'Asia/Taipei' });
+    const festivalPage = await festivalContext.newPage();
+    festivalPage.on('pageerror', error => errors.push(error.message));
+    await festivalPage.clock.install({ time: new Date('2026-10-25T04:00:00Z') });
+    await festivalPage.goto(`http://127.0.0.1:${server.address().port}`);
+    await festivalPage.locator('[aria-current="date"]').click();
+    await festivalPage.locator('#edit-post-it').fill('節日當天的記事');
+    await festivalPage.locator('#note-form [type="submit"]').click();
+    const festivalToday = festivalPage.locator('[aria-current="date"]');
+    assert.equal(await festivalToday.getAttribute('data-date'), '2026-10-25');
+    assert.equal(await festivalToday.locator('.note-preview').isVisible(), false);
+    assert.equal(await festivalToday.locator('.festival-label').isVisible(), true);
+    assert.equal(await festivalToday.locator('.note-dot').isVisible(), true);
+    await festivalPage.setViewportSize({ width: 344, height: 882 });
+    const circle = await festivalToday.locator('.date-number').boundingBox();
+    const marker = await festivalToday.locator('.note-dot').boundingBox();
+    assert.ok(marker.x + marker.width < circle.x || marker.y + marker.height < circle.y || marker.x > circle.x + circle.width || marker.y > circle.y + circle.height, 'Mobile note marker must stay separate from the today circle');
+    await festivalContext.close();
     assert.deepEqual(errors, []);
     console.log('PASS: 10 viewports, lunar dates, Taiwan festivals, DGPA holidays and workdays, month picker, modal bounds, leap years, year rollover, note CRUD/persistence, text safety, theme persistence, and storage failures.');
     console.log('Screenshots: ' + screenshotDir);
