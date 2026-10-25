@@ -5,6 +5,7 @@ const path = require('node:path');
 const os = require('node:os');
 const { chromium } = require('playwright');
 const { testMultiTab, testMidnight } = require('./regressions.cjs');
+const { testAccount } = require('./account.cjs');
 const { createStaticServer } = require('../scripts/serve.cjs');
 const server = createStaticServer();
 (async () => {
@@ -252,6 +253,7 @@ const server = createStaticServer();
     await festivalContext.close();
     await testMultiTab(browser, `http://127.0.0.1:${server.address().port}`);
     await testMidnight(browser, `http://127.0.0.1:${server.address().port}`);
+    await testAccount(browser);
     assert.deepEqual(errors, []);
     console.log('PASS: 10 viewports, lunar dates, Taiwan festivals, DGPA holidays and workdays, month picker, modal bounds, leap years, year rollover, note CRUD/persistence, text safety, theme persistence, and storage failures.');
     console.log('Screenshots: ' + screenshotDir);

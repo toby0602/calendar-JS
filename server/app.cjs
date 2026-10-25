@@ -63,6 +63,7 @@ function createApp({ store = null, origin, production = false, allowRegistration
   const requireUser = async (req, _res, next) => {
     req.user = await currentUser(req);
     if (!req.user) throw new AppError(401, '登入已過期，請重新登入。');
+    if (req.get('X-Calendar-User') && req.get('X-Calendar-User') !== String(req.user.id)) throw new AppError(409, '此瀏覽器已切換帳號。請先複製草稿，再重新整理並登入。', 'ACCOUNT_CHANGED');
     next();
   };
   const rateLimit = (req, _res, next) => {

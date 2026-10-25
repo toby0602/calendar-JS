@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const app = CalendarApp;
   await app.loadNotes();
   app.initTheme();
+  await app.initAccount();
   app.updateToday();
   app.renderMonth();
   app.$("previous-month").addEventListener("click", () => app.moveMonth(-1));
@@ -19,7 +20,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     event.preventDefault();
     const year = Number(app.$("picker-year").value);
     const month = Number(new FormData(event.currentTarget).get("month"));
-    if (!Number.isInteger(year) || year < 100 || year > 9999 || !Number.isInteger(month) || month < 0 || month > 11) return;
+    if (!Number.isInteger(year) || year < app.minYear || year > 9999 || !Number.isInteger(month) || month < 0 || month > 11) return;
     app.state.year = year;
     app.state.month = month;
     app.renderMonth();

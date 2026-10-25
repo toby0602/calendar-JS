@@ -55,6 +55,12 @@
     grid-row: 2;
     margin-top: 0;
   }
+  .account-button {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: end;
+    margin: 0;
+  }
   .today-summary {
     grid-column: 1/-1;
     grid-row: 3;

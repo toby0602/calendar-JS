@@ -13,6 +13,7 @@
     "build": "node scripts/build-site.cjs",
     "build:holidays": "node scripts/build-holidays.cjs",
     "test": "npm run test:api && npm run test:ui",
+    "test:ci": "node scripts/ci-test.cjs",
     "test:api": "node --env-file-if-exists=.env --test tests/api.test.cjs",
     "test:ui": "node tests/calendar.cjs"
   },

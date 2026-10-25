@@ -23,14 +23,14 @@
       state.notes = await app.notesStore.change(state.selectedDate, value, baseNote);
       finish(value === null ? "記事已刪除。" : "記事已儲存。");
     } catch (error) {
-      $("note-error").textContent = error.code === "CONFLICT" ? error.message : "儲存失敗，請檢查儲存空間、權限或連線。你的文字仍保留在這裡。";
+      $("note-error").textContent = ["CONFLICT", "ACCOUNT_CHANGED", "SESSION_EXPIRED"].includes(error.code) ? error.message : "儲存失敗，請檢查儲存空間、權限或連線。你的文字仍保留在這裡。";
     } finally {
       saving = false;
       $("note-form").querySelectorAll("button").forEach(button => { button.disabled = false; });
     }
   }
   async function openNote(key) {
-    await loadNotes();
+    if (!await loadNotes() && app.notesStore !== CalendarLocalNotes) return;
     state.selectedDate = key;
     baseNote = state.notes[key] || "";
     $("note-title").textContent = state.notes[key] ? "編輯每日記事" : "新增每日記事";

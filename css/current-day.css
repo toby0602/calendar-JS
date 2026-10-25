@@ -57,6 +57,19 @@
   margin-right: 5px;
 }
 
+.local-badge b { font-weight: 400; }
+.account-button {
+  align-self: flex-start;
+  padding: 7px 11px;
+  margin-top: 10px;
+  border: 1px solid #ffffff55;
+  border-radius: 8px;
+  background: transparent;
+  color: #fff;
+  font-size: 12px;
+}
+.account-button:hover { background: #ffffff18; }
+
 .today-summary {
   padding: 34px 0 40px;
   position: relative;

@@ -15,6 +15,20 @@ dialog::backdrop {
   backdrop-filter: blur(4px);
 }
 
+.account-fields { display: grid; gap: 10px; }
+.account-fields label { font-size: 13px; }
+.account-fields input {
+  width: 100%;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 16px;
+  color: var(--ink);
+  background: var(--paper);
+}
+#account-import { max-width: 100%; white-space: normal; }
+
 body:has(dialog[open]) {
   overflow: hidden;
 }

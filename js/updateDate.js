@@ -29,7 +29,7 @@ window.CalendarApp = (() => {
     $("choose-month").setAttribute("aria-label", `選擇年月，目前是 ${state.year} 年 ${state.month + 1} 月`);
     $("holiday-data-hint").hidden = OfficialCalendar.hasYear(state.year);
     document.querySelector("table").setAttribute("aria-label", `${state.year} 年 ${state.month + 1} 月月曆`);
-    $("previous-month").disabled = state.year === 100 && state.month === 0;
+    $("previous-month").disabled = state.year === CalendarApp.minYear && state.month === 0;
     $("next-month").disabled = state.year === 9999 && state.month === 11;
     const first = new Date(state.year, state.month, 1);
     const fragment = document.createDocumentFragment();
@@ -44,7 +44,7 @@ window.CalendarApp = (() => {
         const cell = document.createElement("td");
         const button = document.createElement("button");
         button.type = "button";
-        button.disabled = date.getFullYear() < 100 || date.getFullYear() > 9999;
+        button.disabled = date.getFullYear() < CalendarApp.minYear || date.getFullYear() > 9999;
         button.className = "day-button";
         button.dataset.date = key;
         button.classList.toggle("outside-month", date.getMonth() !== state.month);
@@ -100,7 +100,7 @@ window.CalendarApp = (() => {
   }
   function moveMonth(offset) {
     const next = new Date(state.year, state.month + offset, 1);
-    if (next.getFullYear() < 100 || next.getFullYear() > 9999) return;
+    if (next.getFullYear() < CalendarApp.minYear || next.getFullYear() > 9999) return;
     state.year = next.getFullYear();
     state.month = next.getMonth();
     renderMonth();
@@ -112,5 +112,5 @@ window.CalendarApp = (() => {
     updateToday();
     renderMonth();
   }
-  return { state, $, dateKey, parseDate, dateLabel, notify, updateToday, renderMonth, moveMonth, goToday };
+  return { state, minYear: 100, $, dateKey, parseDate, dateLabel, notify, updateToday, renderMonth, moveMonth, goToday };
 })();

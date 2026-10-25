@@ -27,6 +27,9 @@ async function contract(store) {
       return cookie.split(';')[0];
     };
     const a = await register('usera'); const b = await register('userb');
+    const switchedAccount = await fetch(url + '/api/notes', { headers: { Cookie: b, 'X-Calendar-User': String(users[0]) } });
+    assert.equal(switchedAccount.status, 409);
+    assert.equal((await switchedAccount.json()).code, 'ACCOUNT_CHANGED');
     const put = (date, value, expected = '', cookie = a) => request('/api/notes/' + date, { method: 'PUT', cookie, body: { value, expected } });
     const injectionText = "中文記事 '); DROP TABLE calendar_notes; --";
     assert.equal((await put('2026-09-17', injectionText)).status, 200);
